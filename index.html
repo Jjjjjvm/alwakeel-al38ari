@@ -3,275 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الوكيل العقاري الذكي (AI)</title>
-    <!-- Tailwind CSS CDN -->
+    <title>مساعد الذكاء الاصطناعي العام</title>
+    <!-- Tailwind CSS for utility-first styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Cairo -->
+    <!-- Google Fonts: Almarai for Arabic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Cairo', sans-serif; }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+        /* Apply Almarai font and light background to the body */
+        body {
+            font-family: 'Almarai', sans-serif;
+            background-color: #f0fdf4; /* Very light green background */
         }
+        /* Custom styling for chat messages for better visual distinction */
+        .chat-message.user {
+            background-color: #dcfce7; /* Light green for user messages */
+            border-radius: 1.5rem 1.5rem 0.5rem 1.5rem; /* Rounded corners for user bubble */
+            margin-right: auto; /* Push user message to the right */
+        }
+        .chat-message.ai {
+            background-color: #e0f2fe; /* Light blue for AI messages */
+            border-radius: 1.5rem 1.5rem 1.5rem 0.5rem; /* Rounded corners for AI bubble */
+            margin-left: auto; /* Push AI message to the left */
+        }
+        /* Styling for the loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey outer ring */
+            border-top: 4px solid #10b981; /* Emerald colored spinning part */
+            border-radius: 50%; /* Make it circular */
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite; /* Spin animation */
+            margin: 0.5rem auto; /* Center the loader */
+        }
+        /* Keyframe animation for the spinner */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .icon {
-            width: 1.25rem; height: 1.25rem;
-            display: inline-block; vertical-align: middle;
-            margin-left: 0.25rem;
-        }
-        .property-card {
-            transition: all 0.3s ease;
-        }
-        .property-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-green-50 text-gray-800 flex flex-col min-h-screen">
 
-    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-3xl">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
-                <span class="text-blue-600">وكيلك العقاري الذكي</span>
-            </h1>
-            <p class="text-gray-600 mt-2">أدخل مواصفات طلبك ودع الذكاء الاصطناعي يبحث لك في الإنترنت.</p>
+    <div class="container mx-auto px-4 py-8 max-w-2xl flex-grow flex flex-col">
+
+        <!-- Header Section -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-green-800">مساعد الذكاء الاصطناعي العام</h1>
+            <p class="text-md text-gray-600 mt-1">يمكنني مساعدتك في مجموعة واسعة من المواضيع</p>
         </header>
+
+        <!-- Chat Messages Display Area -->
+        <div id="chat-messages" class="flex-grow bg-white p-4 rounded-2xl shadow-lg overflow-y-auto mb-4 flex flex-col space-y-4">
+            <!-- Initial welcome message (dynamically added by JS for consistency with chatHistory) -->
+        </div>
+
+        <!-- Chat Input and Send Button -->
+        <div class="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-2xl shadow-lg">
+            <textarea id="user-input" rows="2" class="flex-grow p-3 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all resize-none" placeholder="اكتب سؤالك أو طلبك هنا..."></textarea>
+            <button id="send-button" class="flex-shrink-0 bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-transform transform hover:scale-105 flex items-center justify-center">
+                <span id="button-text">إرسال</span>
+                <!-- SVG Spinner Icon (hidden by default) -->
+                <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </div>
         
-        <div id="results-section" class="mb-8 bg-white rounded-lg shadow-lg p-6 md:p-8 hidden">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">نتائج البحث</h2>
-            <div id="loading" class="flex flex-col items-center justify-center p-8 text-center">
-                 <div class="loader"></div>
-                 <p class="mt-4 text-gray-600 font-semibold">جاري البحث باستخدام الذكاء الاصطناعي...</p>
-                 <p class="mt-2 text-sm text-gray-500">قد يستغرق هذا بضع لحظات.</p>
-            </div>
-            <div id="results-content" class="hidden"></div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
-            <form id="search-form" class="space-y-6">
-                <div>
-                    <label for="city" class="block text-sm font-medium text-gray-700 mb-2">المدينة</label>
-                    <select id="city" name="city" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition">
-                        <option>الرياض</option>
-                        <option>جدة</option>
-                        <option>الدمام</option>
-                        <option>الخبر</option>
-                        <option>مكة المكرمة</option>
-                         <option>المدينة المنورة</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label for="property-type" class="block text-sm font-medium text-gray-700 mb-2">نوع العقار</label>
-                    <select id="property-type" name="property-type" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition">
-                        <option>شقة</option>
-                        <option>فيلا</option>
-                        <option>أرض</option>
-                        <option>دوبلكس</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="min-price" class="block text-sm font-medium text-gray-700 mb-2">أقل سعر (ريال)</label>
-                        <input type="number" id="min-price" name="min-price" placeholder="300,000" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition">
-                    </div>
-                    <div>
-                        <label for="max-price" class="block text-sm font-medium text-gray-700 mb-2">أعلى سعر (ريال)</label>
-                        <input type="number" id="max-price" name="max-price" placeholder="1,500,000" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition">
-                    </div>
-                </div>
-
-                <div>
-                    <button type="submit" id="search-button" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block ml-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                        </svg>
-                        <span>ابحث الآن</span>
-                    </button>
-                </div>
-            </form>
-        </div>
+        <!-- Loader for AI response, positioned below input but usually hidden -->
+        <div id="loader" class="loader hidden"></div>
 
     </div>
 
+    <!-- Footer Section -->
+    <footer class="text-center mt-6 text-gray-500 text-sm py-4">
+        <p>تم التطوير بواسطة Gemini. لمساعدتك في أي استفسار.</p>
+    </footer>
+
     <script>
-        const searchForm = document.getElementById('search-form');
-        const resultsSection = document.getElementById('results-section');
-        const loadingIndicator = document.getElementById('loading');
-        const resultsContent = document.getElementById('results-content');
-        const searchButton = document.getElementById('search-button');
+        // Get references to DOM elements
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const buttonText = document.getElementById('button-text');
+        const buttonSpinner = document.getElementById('button-spinner');
+        const loader = document.getElementById('loader');
 
-        searchForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
+        // chatHistory will store the conversation, starting with a system instruction and AI welcome
+        let chatHistory = [];
 
-            const city = document.getElementById('city').value;
-            const propertyType = document.getElementById('property-type').value;
-            const minPrice = parseInt(document.getElementById('min-price').value) || 0;
-            const maxPrice = parseInt(document.getElementById('max-price').value) || Infinity;
+        // Add a system-like instruction for the AI's persona and behavior
+        // This is part of the initial 'user' message to guide the model's responses throughout the session
+        chatHistory.push({
+            role: "user",
+            parts: [{ text: `
+                أنت مساعد ذكاء اصطناعي عام ومفيد للغاية. مهمتك هي الإجابة على استفسارات المستخدمين حول مجموعة واسعة من المواضيع، بما في ذلك:
+                - تقديم معلومات وحقائق.
+                - شرح المفاهيم المعقدة بطريقة مبسطة.
+                - المساعدة في الكتابة الإبداعية أو صياغة النصوص.
+                - تقديم نصائح عامة حول مواضيع مختلفة (بما لا يتعارض مع التخصصات التي تتطلب خبراء بشريين مثل الطب، القانون، الاستثمار المالي المباشر).
+                - حل المشكلات المنطقية أو الرياضية.
+                - تلخيص النصوص الطويلة.
 
-            // --- UI Update: Show loading state ---
-            resultsSection.classList.remove('hidden');
-            loadingIndicator.classList.remove('hidden');
-            resultsContent.classList.add('hidden');
-            resultsContent.innerHTML = '';
-            searchButton.disabled = true;
-            searchButton.querySelector('span').innerText = 'جاري البحث...';
+                **قواعد عامة للتعامل مع الطلبات:**
+                - **الرد بأقصر رد ممكن:** قدم الإجابة الأكثر إيجازاً ومباشرة دون إطالة، مع الحفاظ على الفائدة والدقة.
+                - حاول دائماً الإجابة على استفسار المستخدم قدر الإمكان بناءً على معرفتك الواسعة.
+                - اجعل إجاباتك دقيقة ومفيدة.
+                - استخدم اللغة العربية الفصحى بشكل أساسي، مع القدرة على الرد باللغة الإنجليزية إذا كان السؤال بالإنجليزية أو طلب المستخدم ذلك صراحة.
+                - إذا كان السؤال يتطلب بيانات في الوقت الفعلي (مثل أسعار الأسهم الحية، حالة الطقس الآن، أحدث الأخبار، أو البحث عن منتجات معينة معروضة للبيع بأسعار فورية)، أو يتطلب استشارة متخصصة (طبية، قانونية، مالية استثمارية مباشرة)، يجب أن توضح للمستخدم أنك لا تستطيع تقديم هذه المعلومات مباشرة.
+                - في مثل هذه الحالات (التي تتطلب بيانات حية أو استشارات متخصصة)، قم بتوجيه المستخدم للبحث بنفسه على محركات البحث العامة أو المواقع المتخصصة والموثوقة (مثل المواقع الإخبارية، مواقع البحث عن عقارات/منتجات، أو استشارة خبراء بشريين في المجال المعني).
+                - إذا كان الطلب غامضاً جداً أو خارج نطاق قدراتك كنموذج لغوي، اطلب من المستخدم إعادة صياغة سؤاله.
 
-            // --- Construct Prompt for Gemini API ---
-            const minPriceFormatted = minPrice > 0 ? minPrice.toLocaleString('ar-SA') : 'أي سعر';
-            const maxPriceFormatted = maxPrice !== Infinity ? maxPrice.toLocaleString('ar-SA') : 'أي سعر';
-            
-            const prompt = `
-                أنت وكيل عقاري خبير يعمل بالذكاء الاصطناعي في السعودية.
-                مهمتك هي البحث عن عقارات بناءً على طلب العميل.
-                الطلب هو: ${propertyType} في مدينة ${city} بسعر يتراوح بين ${minPriceFormatted} و ${maxPriceFormatted} ريال سعودي.
+                **أمثلة على كيفية التوجيه (في حال عدم القدرة على تقديم معلومات مباشرة):**
+                "أعتذر، لا أستطيع البحث في الوقت الفعلي عن [نوع المعلومة المطلوبة]. دوري هو تقديم معلومات عامة. أنصحك بزيارة [مثال: محرك بحث جوجل]."
+                "أنا نموذج ذكاء اصطناعي، ولا يمكنني تقديم استشارات طبية. أنصحك باستشارة خبير بشري."
 
-                قم بإنشاء قائمة من 3 إلى 5 عقارات وهمية ولكن واقعية تطابق هذه المواصفات.
-                إذا كان نوع العقار "أرض"، فلا تضع غرف نوم أو حمامات.
-                لكل عقار، قدم التفاصيل التالية: "حي", "سعر", "مساحة", "عدد_غرف_النوم", "عدد_الحمامات", "وصف" (موجز وجذاب من 10-15 كلمة), و "صفقة_مميزة" (boolean).
-                اجعل واحدة من النتائج على الأقل لديها "صفقة_مميزة": true.
-                
-                يجب أن يكون الناتج بصيغة JSON فقط، بدون أي نص إضافي قبله أو بعده. يجب أن يكون الناتج عبارة عن مصفوفة من الكائنات (array of objects).
-            `;
+                اجعل تفاعلك ودودًا ومحايدًا.
+                `
+            }]
+        });
 
-            try {
-                // --- Call Gemini API ---
-                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = { 
-                    contents: chatHistory,
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                    }
-                };
-                // --- علامة: هنا يتم استخدام مفتاح API المخفي ---
-                const apiKey = "AIzaSyCV1gRm3NrvItT-8XetEXu12lKTB2eZ9bI"; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.statusText}`);
-                }
+        // Add the initial 'model' (AI) welcome message after the persona setup
+        chatHistory.push({
+            role: "model",
+            parts: [{ text: "مرحباً بك! أنا مساعدك العام بالذكاء الاصطناعي. كيف يمكنني مساعدتك اليوم؟" }]
+        });
 
-                const result = await response.json();
-                
-                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
-                    const jsonText = result.candidates[0].content.parts[0].text;
-                    const properties = JSON.parse(jsonText);
-                    displayResults(properties);
-                } else {
-                    throw new Error("لم يتمكن الذكاء الاصطناعي من العثور على نتائج.");
-                }
+        // Append the initial AI welcome message to the display when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            appendMessage(chatHistory[1].parts[0].text, 'ai');
+        });
 
-            } catch (error) {
-                console.error("Error calling Gemini API:", error);
-                displayError("حدث خطأ أثناء التواصل مع الذكاء الاصطناعي. يرجى المحاولة مرة أخرى.");
-            } finally {
-                // --- UI Update: Hide loading state ---
-                loadingIndicator.classList.add('hidden');
-                resultsContent.classList.remove('hidden');
-                searchButton.disabled = false;
-                searchButton.querySelector('span').innerText = 'ابحث الآن';
+        // --- Event Listener for the Send Button ---
+        sendButton.addEventListener('click', sendMessage);
+        
+        // Allow pressing Enter key to send the message (Shift+Enter for new line)
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Prevents adding a new line
+                sendMessage(); // Call the send message function
             }
         });
-        
-        function displayResults(properties) {
-             if (properties && properties.length > 0) {
-                let html = `
-                    <div class="text-center p-4 mb-4 bg-green-100 border-r-4 border-green-500 rounded-lg">
-                        <h3 class="text-lg font-bold text-green-800">🎉 تهانينا! وجدنا لك ${properties.length} عقار(ات) مناسبة:</h3>
-                    </div>
-                    <ul class="space-y-4">
-                `;
-                
-                properties.forEach((property, index) => {
-                    const imageText = encodeURIComponent(`${property.type || 'عقار'} في ${property.حي || ''}`);
-                    const imageUrl = `https://placehold.co/128x128/D4E2F4/2C5282?text=${imageText}`;
 
-                    // --- Badge logic ---
-                    let badgeHtml = '';
-                    if (property.صفقة_مميزة === true) {
-                        badgeHtml = `
-                            <div class="absolute top-2 -right-11 transform rotate-45 bg-red-500 text-center text-white text-sm font-semibold py-1 px-6 shadow-lg">
-                                مميزة
-                            </div>
-                        `;
+        /**
+         * Appends a message to the chat display.
+         * @param {string} message - The text content of the message.
+         * @param {string} sender - 'user' or 'ai' to determine styling.
+         */
+        function appendMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', sender, 'p-3', 'max-w-xs', 'sm:max-w-md', 'text-sm', 'shadow-md');
+            
+            if (sender === 'ai') {
+                let formattedMessage = message;
+                // Replace any raw URLs with clickable links
+                formattedMessage = formattedMessage.replace(
+                    /(https?:\/\/[^\s]+)/g, 
+                    (match) => {
+                        return `<a href="${match}" target="_blank" class="text-blue-600 hover:underline">${match}</a>`;
                     }
-
-                    let detailsHtml = '';
-                     if (property.type !== 'أرض') {
-                        detailsHtml = `
-                            <div class="text-sm text-gray-600 flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
-                                <span class="flex items-center" title="المساحة">
-                                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5"></path></svg>
-                                    ${property.مساحة || 'غير محدد'} م²
-                                </span>
-                                <span class="flex items-center" title="غرف النوم">
-                                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498A1 1 0 0119 15.72V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                    ${property.عدد_غرف_النوم || 0} غرف
-                                </span>
-                                <span class="flex items-center" title="دورات المياه">
-                                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                    ${property.عدد_الحمامات || 0} حمامات
-                                </span>
-                            </div>
-                        `;
-                    } else {
-                         detailsHtml = `
-                            <div class="text-sm text-gray-600 flex items-center mt-2">
-                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5"></path></svg>
-                                المساحة: ${property.مساحة || 'غير محدد'} م²
-                            </div>
-                        `;
-                    }
-
-                    html += `
-                        <li>
-                            <a href="https://example.com/buy-property?id=${index}" target="_blank" 
-                                class="block p-4 rounded-lg border bg-white property-card relative overflow-hidden">
-                                ${badgeHtml}
-                                <div class="flex flex-col sm:flex-row items-start sm:space-x-4 sm:space-x-reverse">
-                                    <img src="${imageUrl}" alt="صورة ${property.type}" class="w-full h-48 sm:w-32 sm:h-32 rounded-md object-cover mb-4 sm:mb-0" onerror="this.onerror=null;this.src='https://placehold.co/128x128/cccccc/ffffff?text=خطأ';"/>
-                                    <div class="flex-1">
-                                        <h4 class="font-bold text-lg text-gray-800">${property.نوع || 'عقار'} في حي ${property.حي}</h4>
-                                        <p class="text-xl font-bold text-blue-700 my-2">${(property.سعر || 0).toLocaleString('ar-SA')} ريال</p>
-                                        <p class="text-gray-500 text-sm mb-3">"${property.وصف || 'لا يوجد وصف'}"</p>
-                                        ${detailsHtml}
-                                    </div>
-                                </div>
-                            </a>
-                        </li>`;
-                });
-                html += '</ul>';
-                resultsContent.innerHTML = html;
+                );
+                messageDiv.innerHTML = formattedMessage;
             } else {
-                displayError("للأسف، لم يتم العثور على طلبك. حاول تعديل معايير البحث.");
+                messageDiv.textContent = message;
+            }
+            chatMessages.appendChild(messageDiv);
+            // Scroll to the bottom of the chat to show the latest message
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        /**
+         * Handles sending a message: gets user input, displays it, calls AI, and displays AI response.
+         */
+        async function sendMessage() {
+            const userMessage = userInput.value.trim();
+
+            if (!userMessage) {
+                return; // Do nothing if the input is empty
+            }
+
+            // Clear the input field
+            userInput.value = '';
+
+            // Append user message to display and history
+            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+            appendMessage(userMessage, 'user'); // Append after adding to history to avoid race condition
+
+            // Set UI to loading state
+            setLoadingState(true);
+
+            try {
+                // Call the Gemini API with the full chat history for context
+                const aiResponse = await callGeminiAPI(chatHistory);
+
+                // Append AI response to display and history
+                chatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+                appendMessage(aiResponse, 'ai'); // Append after adding to history
+
+            } catch (error) {
+                console.error("Error communicating with AI:", error);
+                appendMessage("عذراً، حدث خطأ أثناء الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى.", 'ai');
+            } finally {
+                // Restore UI from loading state
+                setLoadingState(false);
             }
         }
 
-        function displayError(message) {
-            resultsContent.innerHTML = `
-                <div class="text-center p-4 bg-red-100 border-r-4 border-red-500 rounded-lg">
-                    <h3 class="text-lg font-bold text-red-800">حدث خطأ</h3>
-                    <p class="text-red-700 mt-1">${message}</p>
-                </div>`;
+        /**
+         * Toggles the UI between loading and idle states.
+         * @param {boolean} isLoading - True to show loading indicators, false to hide them.
+         */
+        function setLoadingState(isLoading) {
+            if (isLoading) {
+                sendButton.disabled = true; // Disable send button
+                buttonText.classList.add('hidden'); // Hide button text
+                buttonSpinner.classList.remove('hidden'); // Show button spinner
+                loader.classList.remove('hidden'); // Show main loader
+                userInput.disabled = true; // Disable input field
+            } else {
+                sendButton.disabled = false; // Enable send button
+                buttonText.classList.remove('hidden'); // Show button text
+                buttonSpinner.classList.add('hidden'); // Hide button spinner
+                loader.classList.add('hidden'); // Hide main loader
+                userInput.disabled = false; // Enable input field
+                userInput.focus(); // Focus on input for next message
+            }
+        }
+
+        /**
+         * Calls the Gemini API with the chat history.
+         * @param {Array<Object>} history - The array of message objects (role and parts).
+         * @returns {Promise<string>} - The generated text from the model.
+         * @throws {Error} If the API request fails or the response structure is unexpected.
+         */
+        async function callGeminiAPI(history) {
+            const payload = { contents: history }; // Payload includes the full chat history
+            // The API key is an empty string and will be handled by the environment.
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.json();
+                console.error("API Error Response:", errorBody);
+                throw new Error(`فشل طلب واجهة برمجة التطبيقات بحالة ${response.status}. انظر وحدة التحكم للمزيد من التفاصيل.`);
+            }
+            
+            const result = await response.json();
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                return result.candidates[0].content.parts[0].text;
+            } else {
+                console.error("Unexpected API response structure:", result);
+                if (result.promptFeedback && result.promptFeedback.blockReason) {
+                    throw new Error(`تم حظر الطلب. السبب: ${result.promptFeedback.blockReason}`);
+                }
+                throw new Error("لم يتمكن الذكاء الاصطناعي من تكوين إجابة. قد يكون السؤال غير واضح.");
+            }
         }
     </script>
+
 </body>
 </html>
