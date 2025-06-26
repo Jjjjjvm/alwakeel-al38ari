@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons (optional, for visual flair) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
         /* Apply Almarai font and light background to the body */
@@ -43,6 +45,47 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        /* General button styling */
+        .app-button {
+            background-color: #10b981; /* Emerald 600 */
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+        .app-button:hover {
+            background-color: #059669; /* Emerald 700 */
+            transform: translateY(-2px) scale(1.02); /* Slight lift and scale */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        .app-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3); /* Focus ring */
+        }
+        .hidden {
+            display: none;
+        }
+        /* Image generation specific styles */
+        #generatedImage {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 1.5rem;
+        }
+        .image-gen-loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6; /* Blue for image loader */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 1.5rem auto;
+        }
     </style>
 </head>
 <body class="bg-green-50 text-gray-800 flex flex-col min-h-screen">
@@ -55,21 +98,54 @@
             <p class="text-md text-gray-600 mt-1">يمكنني مساعدتك في مجموعة واسعة من المواضيع</p>
         </header>
 
-        <!-- Chat Messages Display Area -->
-        <div id="chat-messages" class="flex-grow bg-white p-4 rounded-2xl shadow-lg overflow-y-auto mb-4 flex flex-col space-y-4">
-            <!-- Initial welcome message (dynamically added by JS for consistency with chatHistory) -->
+        <!-- Chat Interface Section -->
+        <div id="chat-interface" class="flex flex-col flex-grow bg-white p-4 rounded-2xl shadow-lg">
+            <!-- Chat Messages Display Area -->
+            <div id="chat-messages" class="flex-grow overflow-y-auto mb-4 flex flex-col space-y-4">
+                <!-- Initial welcome message (dynamically added by JS for consistency with chatHistory) -->
+            </div>
+
+            <!-- Chat Input and Send Button -->
+            <div class="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-2xl shadow-lg">
+                <textarea id="user-input" rows="2" class="flex-grow p-3 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all resize-none" placeholder="اكتب سؤالك أو طلبك هنا..."></textarea>
+                <button id="send-button" class="flex-shrink-0 bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-transform transform hover:scale-105 flex items-center justify-center">
+                    <span id="button-text">إرسال</span>
+                    <!-- SVG Spinner Icon (hidden by default) -->
+                    <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Buttons to toggle other interfaces -->
+            <div class="flex flex-col sm:flex-row gap-3 mt-4">
+                <!-- Removed Canvas Button -->
+                <button id="toggle-image-gen-button" class="app-button w-full bg-purple-600 hover:bg-purple-700 focus:ring-purple-300">
+                    توليد الصور
+                </button>
+            </div>
         </div>
 
-        <!-- Chat Input and Send Button -->
-        <div class="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-2xl shadow-lg">
-            <textarea id="user-input" rows="2" class="flex-grow p-3 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all resize-none" placeholder="اكتب سؤالك أو طلبك هنا..."></textarea>
-            <button id="send-button" class="flex-shrink-0 bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-transform transform hover:scale-105 flex items-center justify-center">
-                <span id="button-text">إرسال</span>
-                <!-- SVG Spinner Icon (hidden by default) -->
-                <svg id="button-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <!-- Image Generation Interface Section -->
+        <div id="image-gen-interface" class="hidden flex-col flex-grow bg-white p-4 rounded-2xl shadow-lg items-center justify-center">
+            <h2 class="text-2xl font-bold text-green-700 mb-4">مولد الصور</h2>
+            <textarea id="image-prompt-input" rows="3" class="w-full p-3 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all resize-none mb-4" placeholder="اكتب وصف الصورة التي تريد توليدها هنا..."></textarea>
+            
+            <button id="generate-image-button" class="app-button bg-purple-600 hover:bg-purple-700 focus:ring-purple-300 w-full flex items-center justify-center">
+                <span id="generate-button-text">توليد الصورة</span>
+                <svg id="generate-button-spinner" class="animate-spin h-5 w-5 text-white hidden mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
+            </button>
+
+            <div id="image-gen-loader" class="image-gen-loader hidden"></div>
+            <img id="generatedImage" src="" alt="الصورة المولدة" class="hidden">
+            <p id="image-error-message" class="text-red-500 text-sm mt-2 hidden">حدث خطأ أثناء توليد الصورة.</p>
+
+            <button id="back-to-chat-from-image-gen-button" class="app-button bg-gray-600 hover:bg-gray-700 focus:ring-gray-300 w-full mt-4">
+                العودة للدردشة
             </button>
         </div>
         
@@ -84,7 +160,7 @@
     </footer>
 
     <script>
-        // Get references to DOM elements
+        // Get references to DOM elements for chat
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
@@ -92,11 +168,42 @@
         const buttonSpinner = document.getElementById('button-spinner');
         const loader = document.getElementById('loader');
 
+        // Get references to interface sections and toggle buttons
+        const chatInterface = document.getElementById('chat-interface');
+        // Removed canvasInterface
+        const imageGenInterface = document.getElementById('image-gen-interface');
+        // Removed toggleCanvasButton
+        const toggleImageGenButton = document.getElementById('toggle-image-gen-button');
+        // Removed backToChatFromCanvasButton
+        const backToChatFromImageGenButton = document.getElementById('back-to-chat-from-image-gen-button');
+
+        // Removed Canvas elements references
+        // const drawingCanvas = document.getElementById('drawingCanvas');
+        // const ctx = drawingCanvas.getContext('2d');
+        // const colorPicker = document.getElementById('color-picker');
+        // const lineWidthControl = document.getElementById('line-width');
+        // const lineWidthValueDisplay = document.getElementById('line-width-value');
+        // const clearCanvasButton = document.getElementById('clear-canvas-button');
+
+        // Get references to Image Generation elements
+        const imagePromptInput = document.getElementById('image-prompt-input');
+        const generateImageButton = document.getElementById('generate-image-button');
+        const generateButtonText = document.getElementById('generate-button-text');
+        const generateButtonSpinner = document.getElementById('generate-button-spinner');
+        const generatedImage = document.getElementById('generatedImage');
+        const imageGenLoader = document.getElementById('image-gen-loader');
+        const imageErrorMessage = document.getElementById('image-error-message');
+
+
         // chatHistory will store the conversation, starting with a system instruction and AI welcome
         let chatHistory = [];
 
+        // Removed Canvas drawing state variables
+        // let isDrawing = false;
+        // let lastX = 0;
+        // let lastY = 0;
+
         // Add a system-like instruction for the AI's persona and behavior
-        // This is part of the initial 'user' message to guide the model's responses throughout the session
         chatHistory.push({
             role: "user",
             parts: [{ text: `
@@ -107,6 +214,7 @@
                 - تقديم نصائح عامة حول مواضيع مختلفة (بما لا يتعارض مع التخصصات التي تتطلب خبراء بشريين مثل الطب، القانون، الاستثمار المالي المباشر).
                 - حل المشكلات المنطقية أو الرياضية.
                 - تلخيص النصوص الطويلة.
+                - **يمكنك أيضاً تقديم إرشادات حول استخدام ميزة "توليد الصور" المدمجة في هذا التطبيق.** يمكنك أن تشرح للمستخدم كيفية كتابة وصف فعال للصورة، أو تقترح أفكاراً لصور يمكن توليدها، ولكن تذكر أنك لا تستطيع توليد الصور بنفسك مباشرة في الدردشة.
 
                 **قواعد عامة للتعامل مع الطلبات:**
                 - **الرد بأقصر رد ممكن:** قدم الإجابة الأكثر إيجازاً ومباشرة دون إطالة، مع الحفاظ على الفائدة والدقة.
@@ -135,31 +243,59 @@
         // Append the initial AI welcome message to the display when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             appendMessage(chatHistory[1].parts[0].text, 'ai');
+            // Removed initial canvas properties setup
+            // ctx.lineWidth = lineWidthControl.value;
+            // ctx.lineCap = 'round';
+            // ctx.strokeStyle = colorPicker.value;
         });
 
-        // --- Event Listener for the Send Button ---
+        // --- Interface Switching Logic ---
+        function showInterface(interfaceToShow) {
+            chatInterface.classList.add('hidden');
+            // Removed canvasInterface
+            imageGenInterface.classList.add('hidden');
+
+            interfaceToShow.classList.remove('hidden');
+        }
+
+        // Removed toggleCanvasButton event listener
+        // toggleCanvasButton.addEventListener('click', () => {
+        //     showInterface(canvasInterface);
+        //     resizeCanvas();
+        // });
+
+        toggleImageGenButton.addEventListener('click', () => {
+            showInterface(imageGenInterface);
+            generatedImage.classList.add('hidden');
+            imageErrorMessage.classList.add('hidden');
+        });
+
+        // Removed backToChatFromCanvasButton event listener
+        // backToChatFromCanvasButton.addEventListener('click', () => {
+        //     showInterface(chatInterface);
+        // });
+
+        backToChatFromImageGenButton.addEventListener('click', () => {
+            showInterface(chatInterface);
+        });
+
+
+        // --- Chat Functionality ---
         sendButton.addEventListener('click', sendMessage);
         
-        // Allow pressing Enter key to send the message (Shift+Enter for new line)
         userInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // Prevents adding a new line
-                sendMessage(); // Call the send message function
+                e.preventDefault();
+                sendMessage();
             }
         });
 
-        /**
-         * Appends a message to the chat display.
-         * @param {string} message - The text content of the message.
-         * @param {string} sender - 'user' or 'ai' to determine styling.
-         */
         function appendMessage(message, sender) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('chat-message', sender, 'p-3', 'max-w-xs', 'sm:max-w-md', 'text-sm', 'shadow-md');
             
             if (sender === 'ai') {
                 let formattedMessage = message;
-                // Replace any raw URLs with clickable links
                 formattedMessage = formattedMessage.replace(
                     /(https?:\/\/[^\s]+)/g, 
                     (match) => {
@@ -171,78 +307,54 @@
                 messageDiv.textContent = message;
             }
             chatMessages.appendChild(messageDiv);
-            // Scroll to the bottom of the chat to show the latest message
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        /**
-         * Handles sending a message: gets user input, displays it, calls AI, and displays AI response.
-         */
         async function sendMessage() {
             const userMessage = userInput.value.trim();
 
             if (!userMessage) {
-                return; // Do nothing if the input is empty
+                return;
             }
 
-            // Clear the input field
             userInput.value = '';
-
-            // Append user message to display and history
             chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
-            appendMessage(userMessage, 'user'); // Append after adding to history to avoid race condition
+            appendMessage(userMessage, 'user');
 
-            // Set UI to loading state
             setLoadingState(true);
 
             try {
-                // Call the Gemini API with the full chat history for context
                 const aiResponse = await callGeminiAPI(chatHistory);
-
-                // Append AI response to display and history
                 chatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
-                appendMessage(aiResponse, 'ai'); // Append after adding to history
-
+                appendMessage(aiResponse, 'ai');
             } catch (error) {
                 console.error("Error communicating with AI:", error);
                 appendMessage("عذراً، حدث خطأ أثناء الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى.", 'ai');
             } finally {
-                // Restore UI from loading state
                 setLoadingState(false);
             }
         }
 
-        /**
-         * Toggles the UI between loading and idle states.
-         * @param {boolean} isLoading - True to show loading indicators, false to hide them.
-         */
         function setLoadingState(isLoading) {
             if (isLoading) {
-                sendButton.disabled = true; // Disable send button
-                buttonText.classList.add('hidden'); // Hide button text
-                buttonSpinner.classList.remove('hidden'); // Show button spinner
-                loader.classList.remove('hidden'); // Show main loader
-                userInput.disabled = true; // Disable input field
+                sendButton.disabled = true;
+                buttonText.classList.add('hidden');
+                buttonSpinner.classList.remove('hidden');
+                loader.classList.remove('hidden');
+                userInput.disabled = true;
             } else {
-                sendButton.disabled = false; // Enable send button
-                buttonText.classList.remove('hidden'); // Show button text
-                buttonSpinner.classList.add('hidden'); // Hide button spinner
-                loader.classList.add('hidden'); // Hide main loader
-                userInput.disabled = false; // Enable input field
-                userInput.focus(); // Focus on input for next message
+                sendButton.disabled = false;
+                buttonText.classList.remove('hidden');
+                buttonSpinner.classList.add('hidden');
+                loader.classList.add('hidden');
+                userInput.disabled = false;
+                userInput.focus();
             }
         }
 
-        /**
-         * Calls the Gemini API with the chat history.
-         * @param {Array<Object>} history - The array of message objects (role and parts).
-         * @returns {Promise<string>} - The generated text from the model.
-         * @throws {Error} If the API request fails or the response structure is unexpected.
-         */
         async function callGeminiAPI(history) {
-            const payload = { contents: history }; // Payload includes the full chat history
-            // The API key is an empty string and will be handled by the environment.
-            const apiKey = "AIzaSyCkN_5SuUfS_21mlzQ0BL3XE74Eh36W2Jw";
+            const payload = { contents: history };
+            const apiKey = "AIzaSyCkN_5SuUfS_21mlzQ0BL3XE74Eh36W2Jw"; // API key handled by the environment
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -269,6 +381,130 @@
                     throw new Error(`تم حظر الطلب. السبب: ${result.promptFeedback.blockReason}`);
                 }
                 throw new Error("لم يتمكن الذكاء الاصطناعي من تكوين إجابة. قد يكون السؤال غير واضح.");
+            }
+        }
+
+        // Removed Canvas Functionality
+        // function resizeCanvas() {
+        //     const parent = drawingCanvas.parentElement;
+        //     drawingCanvas.width = parent.clientWidth - 32;
+        //     drawingCanvas.height = Math.min(parent.clientHeight - 150, 400);
+        // }
+
+        // window.addEventListener('load', resizeCanvas);
+        // window.addEventListener('resize', resizeCanvas);
+
+        // drawingCanvas.addEventListener('mousedown', (e) => {
+        //     isDrawing = true;
+        //     [lastX, lastY] = [e.offsetX, e.offsetY];
+        // });
+
+        // drawingCanvas.addEventListener('mousemove', draw);
+        // drawingCanvas.addEventListener('mouseup', () => isDrawing = false);
+        // drawingCanvas.addEventListener('mouseout', () => isDrawing = false);
+
+        // drawingCanvas.addEventListener('touchstart', (e) => {
+        //     e.preventDefault();
+        //     isDrawing = true;
+        //     const touch = e.touches[0];
+        //     const rect = drawingCanvas.getBoundingClientRect();
+        //     [lastX, lastY] = [touch.clientX - rect.left, touch.clientY - rect.top];
+        // });
+
+        // drawingCanvas.addEventListener('touchmove', (e) => {
+        //     e.preventDefault();
+        //     if (!isDrawing) return;
+        //     const touch = e.touches[0];
+        //     const rect = drawingCanvas.getBoundingClientRect();
+        //     draw({ offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top });
+        // });
+
+        // drawingCanvas.addEventListener('touchend', () => isDrawing = false);
+        // drawingCanvas.addEventListener('touchcancel', () => isDrawing = false);
+
+
+        // function draw(e) {
+        //     if (!isDrawing) return;
+        //     ctx.beginPath();
+        //     ctx.moveTo(lastX, lastY);
+        //     ctx.lineTo(e.offsetX, e.offsetY);
+        //     ctx.stroke();
+        //     [lastX, lastY] = [e.offsetX, e.offsetY];
+        // }
+
+        // colorPicker.addEventListener('input', (e) => {
+        //     ctx.strokeStyle = e.target.value;
+        // });
+
+        // lineWidthControl.addEventListener('input', (e) => {
+        //     ctx.lineWidth = e.target.value;
+        //     lineWidthValueDisplay.textContent = e.target.value;
+        // });
+
+        // clearCanvasButton.addEventListener('click', () => {
+        //     ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        // });
+
+        // --- Image Generation Functionality ---
+        generateImageButton.addEventListener('click', generateImage);
+
+        async function generateImage() {
+            const prompt = imagePromptInput.value.trim();
+            if (!prompt) {
+                imageErrorMessage.textContent = "الرجاء إدخال وصف للصورة.";
+                imageErrorMessage.classList.remove('hidden');
+                return;
+            }
+
+            // Clear previous image and error
+            generatedImage.classList.add('hidden');
+            imageErrorMessage.classList.add('hidden');
+            generatedImage.src = "";
+
+            // Set loading state
+            generateImageButton.disabled = true;
+            generateButtonText.classList.add('hidden');
+            generateButtonSpinner.classList.remove('hidden');
+            imageGenLoader.classList.remove('hidden');
+
+            try {
+                const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1} };
+                const apiKey = ""; // API key handled by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    console.error("Image API Error Response:", errorBody);
+                    throw new Error(`فشل توليد الصورة بحالة ${response.status}.`);
+                }
+
+                const result = await response.json();
+
+                if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                    const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                    generatedImage.src = imageUrl;
+                    generatedImage.classList.remove('hidden');
+                } else {
+                    console.error("Unexpected Image API response structure:", result);
+                    throw new Error("لم يتمكن الذكاء الاصطناعي من توليد الصورة. يرجى المحاولة بوصف مختلف.");
+                }
+
+            } catch (error) {
+                console.error("Error generating image:", error);
+                imageErrorMessage.textContent = `عذراً، حدث خطأ: ${error.message}`;
+                imageErrorMessage.classList.remove('hidden');
+            } finally {
+                // Restore button state
+                generateImageButton.disabled = false;
+                generateButtonText.classList.remove('hidden');
+                generateButtonSpinner.classList.add('hidden');
+                imageGenLoader.classList.add('hidden');
             }
         }
     </script>
